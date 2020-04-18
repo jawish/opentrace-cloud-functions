@@ -9,7 +9,7 @@ const config: FunctionConfig = {
   authenticator: new Authenticator(),
   encryption: {
     defaultAlgorithm: "aes-256-gcm",
-    keyPath: process.env.ENCRYPTION_KEY_PATH!,
+    keyPath: process.env.ENCRYPTION_KEY_PATH as string,
     defaultVersion: 1,
   },
   tempID: {
