@@ -1,1 +1,10 @@
+# Firebase config
 .firebaserc
+
+# Logs
+*.log
+
+# IDE stuff
+.history
+.idea
+.vscode
