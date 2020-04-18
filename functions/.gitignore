@@ -8,5 +8,3 @@ typings/
 node_modules/
 /.runtimeconfig.json
 
-# Configuration files
-**/config.ts
