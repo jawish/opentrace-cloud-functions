@@ -3,12 +3,21 @@ on:
   push:
     branches:
       - master
+      - develop
 
 jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
     steps:
+      - name: Set env to staging
+        if: endsWith(github.ref, '/develop')
+        run: |
+          echo "::set-env name=PROJECT_ID::${{ secrets.STAGING_PROJECT_ID }}"
+      - name: Set env to production
+        if: endsWith(github.ref, '/master')
+        run: |
+          echo "::set-env name=PROJECT_ID::${{ secrets.PRODUCTION_PROJECT_ID }}"
       - name: Checkout Repo
         uses: actions/checkout@v2
       - name: Install Dependencies
@@ -20,10 +29,4 @@ jobs:
           args: deploy --only functions
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-          PROJECT_ID: ${{ secrets.PROJECT_ID }}
-          ENCRYPTION_KEY_PATH: ${{ secrets.ENCRYPTION_KEY_PATH }}
-          UPLOAD_ARCHIVE_BUCKET: ${{ secrets.UPLOAD_ARCHIVE_BUCKET }}
-          UPLOAD_BUCKET: ${{ secrets.UPLOAD_BUCKET }}
-          UPLOAD_POSTDATA_ADD_PHONE_NUMBER: ${{ secrets.UPLOAD_POSTDATA_ADD_PHONE_NUMBER }}
-          UPLOAD_POSTDATA_API_URL: ${{ secrets.UPLOAD_POSTDATA_API_URL }}
-          UPLOAD_POSTDATA_WITH_EVENTS: ${{ secrets.UPLOAD_POSTDATA_WITH_EVENTS }}
+          PROJECT_ID: ${{ env.PROJECT_ID }}

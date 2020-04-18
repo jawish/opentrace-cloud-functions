@@ -1,15 +1,17 @@
-import FunctionConfig, { UPLOAD_POSTDATA_STRATEGY } from "./opentrace/types/FunctionConfig";
+import * as functions from "firebase-functions";
+
+import FunctionConfig from "./opentrace/types/FunctionConfig";
 import Authenticator from "./opentrace/utils/Authenticator";
 import HotpPinGenerator from "./opentrace/utils/HotpPinGenerator";
 
 const config: FunctionConfig = {
-  projectId: process.env.PROJECT_ID as string,
+  projectId: functions.config().opentrace.projectid,
   regions: ['asia-east2'],
   utcOffset: 0,
   authenticator: new Authenticator(),
   encryption: {
     defaultAlgorithm: "aes-256-gcm",
-    keyPath: process.env.ENCRYPTION_KEY_PATH as string,
+    keyPath: functions.config().opentrace.encryptionkeypath,
     defaultVersion: 1,
   },
   tempID: {
@@ -19,15 +21,15 @@ const config: FunctionConfig = {
   },
   upload: {
     pinGenerator: new HotpPinGenerator(),
-    bucket: process.env.UPLOAD_BUCKET as string,
+    bucket: functions.config().opentrace.uploadbucket,
     recordsDir: "records",
     testsDir: "tests",
     tokenValidityPeriod: 2, // in hours
     bucketForArchive: "archive-bucket", // Unused
-    postDataStrategy: process.env.UPLOAD_POSTDATA_STRATEGY! as UPLOAD_POSTDATA_STRATEGY, // Can be 'url' | 'content'
-    postDataApiUrl: process.env.UPLOAD_POSTDATA_API_URL as string,   // Endpoint URL to POST data
-    postDataWithEvents: !!process.env.UPLOAD_POSTDATA_WITH_EVENTS,
-    postDataAddPhoneNumber: !!process.env.UPLOAD_POSTDATA_ADD_PHONE_NUMBER,
+    postDataStrategy: functions.config().opentrace.postdatastrategy, // Can be 'url' | 'content'
+    postDataApiUrl: functions.config().opentrace.postdataapiurl,   // Endpoint URL to POST data
+    postDataWithEvents: !!functions.config().opentrace.postdatawithevents,
+    postDataAddPhoneNumber: !!functions.config().opentrace.postdataaddphonenumber,
   },
 };
 
