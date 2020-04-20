@@ -4,10 +4,10 @@ import * as moment from "moment";
 import { ObjectMetadata } from "firebase-functions/lib/providers/storage";
 import fetch from "node-fetch";
 
-import config from "../config";
-import CustomEncrypter from "./utils/CustomEncrypter";
-import getEncryptionKey from "./utils/getEncryptionKey";
-import { TEMPID_SIZE, IV_SIZE, AUTHTAG_SIZE, UID_SIZE, TIME_SIZE } from "./constants";
+import config from "../../config";
+import CustomEncrypter from "../../utils/CustomEncrypter";
+import getEncryptionKey from "../../utils/getEncryptionKey";
+import { TEMPID_SIZE, IV_SIZE, AUTHTAG_SIZE, UID_SIZE, TIME_SIZE } from "../../constants";
 
 interface IBaseEvent {
   id: number;
@@ -68,7 +68,7 @@ interface IDataDecrypted {
   records: IRecordDecrypted[];
 }
 
-const processUploadedData = async (object: ObjectMetadata) => {
+export const processUploadedData = async (object: ObjectMetadata) => {
   const fileBucket = object.bucket;
   const filePath = object.name;
   const { postDataApiUrl, postDataStrategy, postDataWithEvents, postDataAddPhoneNumber } = config.upload;
@@ -233,5 +233,3 @@ export const getUserPhone = async (uid: string): Promise<string> => {
 
   return phoneNumber;
 };
-
-export default processUploadedData;
