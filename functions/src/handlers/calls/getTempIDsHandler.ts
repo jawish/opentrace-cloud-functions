@@ -1,11 +1,15 @@
+import * as functions from "firebase-functions";
 import * as moment from "moment";
 
-import config from "../config";
-import CustomEncrypter from "./utils/CustomEncrypter";
-import getEncryptionKey from "./utils/getEncryptionKey";
-import { TEMPID_SIZE, UID_SIZE, TIME_SIZE, IV_SIZE, AUTHTAG_SIZE } from "./constants";
+import config from "../../config";
+import CustomEncrypter from "../../utils/CustomEncrypter";
+import getEncryptionKey from "../../utils/getEncryptionKey";
+import { TEMPID_SIZE, UID_SIZE, TIME_SIZE, IV_SIZE, AUTHTAG_SIZE } from "../../constants";
 
-const getTempIDs = async (uid: string) => {
+export const getTempIDsHandler = async (_data: any, context: functions.https.CallableContext) => {
+  // Get the UID
+  const uid = context.auth!.uid;
+
   console.log("getTempIDs:", "uid", uid);
 
   const encryptionKey = await getEncryptionKey();
@@ -71,5 +75,3 @@ export function decryptTempID(
     expiryTime: expiryTime,
   };
 }
-
-export default getTempIDs;

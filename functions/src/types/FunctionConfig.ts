@@ -33,13 +33,16 @@ interface FunctionConfig {
     bucket: string;
     recordsDir: string;
     testsDir: string;
-    tokenValidityPeriod: number; // in hours
+    tokenValidityPeriod: number; // in minutes
     bucketForArchive: string;
     postDataApiUrl: string; // Remote server URL to post uploaded JSON to
     postDataStrategy: UPLOAD_POSTDATA_STRATEGY;
     postDataWithEvents?: boolean;
     postDataAddPhoneNumber?: boolean;
   };
+  api: {
+    key: string;
+  }
 }
 
 export default FunctionConfig;

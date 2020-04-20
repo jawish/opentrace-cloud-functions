@@ -4,7 +4,7 @@
  */
 import * as moment from "moment";
 
-import config from "../../config";
+import config from "../config";
 
 const TIMESTAMP_FORMAT = "DD-MMM-YYYY HH:mm:ss Z";
 

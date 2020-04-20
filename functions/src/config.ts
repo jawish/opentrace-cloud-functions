@@ -1,8 +1,8 @@
 import * as functions from "firebase-functions";
 
-import FunctionConfig from "./opentrace/types/FunctionConfig";
-import Authenticator from "./opentrace/utils/Authenticator";
-import HotpPinGenerator from "./opentrace/utils/HotpPinGenerator";
+import FunctionConfig from "./types/FunctionConfig";
+import Authenticator from "./utils/Authenticator";
+import HotpPinGenerator from "./utils/HotpPinGenerator";
 
 const config: FunctionConfig = {
   projectId: functions.config().opentrace.projectid,
@@ -20,17 +20,20 @@ const config: FunctionConfig = {
     batchSize: 100, // sufficient for 24h+
   },
   upload: {
-    pinGenerator: new HotpPinGenerator(),
+    pinGenerator: new HotpPinGenerator(functions.config().opentrace.pinsalt),
     bucket: functions.config().opentrace.uploadbucket,
+    bucketForArchive: functions.config().opentrace.archivebucket,
     recordsDir: "records",
     testsDir: "tests",
-    tokenValidityPeriod: 2, // in hours
-    bucketForArchive: "archive-bucket", // Unused
+    tokenValidityPeriod: 30, // in minutes
     postDataStrategy: functions.config().opentrace.postdatastrategy, // Can be 'url' | 'content'
     postDataApiUrl: functions.config().opentrace.postdataapiurl,   // Endpoint URL to POST data
     postDataWithEvents: !!functions.config().opentrace.postdatawithevents,
     postDataAddPhoneNumber: !!functions.config().opentrace.postdataaddphonenumber,
   },
+  api: {
+    key: functions.config().opentrace.apikey,
+  }
 };
 
 export default config;
