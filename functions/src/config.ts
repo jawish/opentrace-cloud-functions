@@ -22,10 +22,10 @@ const config: FunctionConfig = {
   upload: {
     pinGenerator: new HotpPinGenerator(functions.config().opentrace.pinsalt),
     bucket: functions.config().opentrace.uploadbucket,
+    bucketForArchive: functions.config().opentrace.archivebucket,
     recordsDir: "records",
     testsDir: "tests",
     tokenValidityPeriod: 30, // in minutes
-    bucketForArchive: "archive-bucket", // Unused
     postDataStrategy: functions.config().opentrace.postdatastrategy, // Can be 'url' | 'content'
     postDataApiUrl: functions.config().opentrace.postdataapiurl,   // Endpoint URL to POST data
     postDataWithEvents: !!functions.config().opentrace.postdatawithevents,

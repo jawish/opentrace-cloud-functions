@@ -86,11 +86,32 @@ export const processUploadedData = async (object: ObjectMetadata) => {
 
   // Get the uploaded file object from the object
   const file = admin.storage().bucket(fileBucket).file(filePath);
-
   try {
+    // Download the file for processing
+    const data = await file.download();
+    const dataJson: IData = JSON.parse(data[0].toString("utf8"));
+
+    // Get the encryption key
+    const encryptionKey = await getEncryptionKey();
+
+    // Decrypt all the encrypted values in the data
+    const transformedData: IDataDecrypted = await transformData(
+      dataJson,
+      encryptionKey,
+      postDataWithEvents,
+      postDataAddPhoneNumber
+    );
+
+    const decryptedData = JSON.stringify(transformedData);
+
+    // Save decrypted data to archive bucket
+    const archiveBucket = config.upload.bucketForArchive;
+    const archiveFile = await admin.storage().bucket(archiveBucket).file(filePath);
+    await archiveFile.save(decryptedData);
+
     if (postDataStrategy === "url") {
       // Create a signed URL with 10 minutes expiry
-      const signedUrl = await file.getSignedUrl({
+      const signedUrl = await archiveFile.getSignedUrl({
         action: "read",
         expires: moment().add(10, "minutes").toDate(),
       });
@@ -98,23 +119,8 @@ export const processUploadedData = async (object: ObjectMetadata) => {
       // Send signed URL to file to remote API
       await postData(postDataApiUrl, JSON.stringify({ url: signedUrl[0] }));
     } else if (postDataStrategy === "content") {
-      // Download the file for processing
-      const data = await file.download();
-      const dataJson: IData = JSON.parse(data[0].toString("utf8"));
-
-      // Get the encryption key
-      const encryptionKey = await getEncryptionKey();
-
-      // Decrypt all the encrypted values in the data
-      const transformedData: IDataDecrypted = await transformData(
-        dataJson,
-        encryptionKey,
-        postDataWithEvents,
-        postDataAddPhoneNumber
-      );
-
-      // Send
-      await postData(postDataApiUrl, JSON.stringify(transformedData));
+      // Send actual contents to remote API
+      await postData(postDataApiUrl, decryptedData);
     }
   } catch (error) {
     console.error("processUploadedData: Error while trying to post data to remote URL.", error);
