@@ -27,7 +27,11 @@ const config: FunctionConfig = {
     testsDir: "tests",
     tokenValidityPeriod: 30, // in minutes
     postDataStrategy: functions.config().opentrace.postdatastrategy, // Can be 'url' | 'content'
-    postDataApiUrl: functions.config().opentrace.postdataapiurl,   // Endpoint URL to POST data
+    postDataApiUsername: functions.config().opentrace.postdataapiusername,
+    postDataApiPassword: functions.config().opentrace.postdataapipassword,
+    postDataApiClientId: functions.config().opentrace.postdataapiclientid,
+    postDataApiLoginUrl: functions.config().opentrace.postdataapiloginurl,   // Endpoint URL to POST data
+    postDataApiUploadUrl: functions.config().opentrace.postdataapiuploadurl,   // Endpoint URL to POST data
     postDataWithEvents: !!functions.config().opentrace.postdatawithevents,
     postDataAddPhoneNumber: !!functions.config().opentrace.postdataaddphonenumber,
   },

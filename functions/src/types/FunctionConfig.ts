@@ -35,7 +35,11 @@ interface FunctionConfig {
     testsDir: string;
     tokenValidityPeriod: number; // in minutes
     bucketForArchive: string;
-    postDataApiUrl: string; // Remote server URL to post uploaded JSON to
+    postDataApiLoginUrl: string; // Remote server URL to login
+    postDataApiUsername: string;
+    postDataApiPassword: string;
+    postDataApiClientId: string;
+    postDataApiUploadUrl: string; // Remote server URL to post uploaded JSON to
     postDataStrategy: UPLOAD_POSTDATA_STRATEGY;
     postDataWithEvents?: boolean;
     postDataAddPhoneNumber?: boolean;

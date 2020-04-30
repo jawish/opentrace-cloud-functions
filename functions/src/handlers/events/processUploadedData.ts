@@ -71,7 +71,7 @@ interface IDataDecrypted {
 export const processUploadedData = async (object: ObjectMetadata) => {
   const fileBucket = object.bucket;
   const filePath = object.name;
-  const { postDataApiUrl, postDataStrategy, postDataWithEvents, postDataAddPhoneNumber } = config.upload;
+  const { postDataApiLoginUrl, postDataApiUploadUrl, postDataStrategy, postDataWithEvents, postDataAddPhoneNumber } = config.upload;
 
   // Throw error if filePath is empty
   if (!filePath) {
@@ -80,8 +80,8 @@ export const processUploadedData = async (object: ObjectMetadata) => {
   }
 
   // Throw error is postData API URL is not configured or empty
-  if (!postDataApiUrl) {
-    throw new Error("Post data remote URL not defined!");
+  if (!postDataApiUploadUrl || !postDataApiLoginUrl) {
+    throw new Error("Post data remote API URLs not defined!");
   }
 
   // Get the uploaded file object from the object
@@ -117,10 +117,10 @@ export const processUploadedData = async (object: ObjectMetadata) => {
       });
 
       // Send signed URL to file to remote API
-      await postData(postDataApiUrl, JSON.stringify({ url: signedUrl[0] }));
+      await postData(JSON.stringify({ url: signedUrl[0] }));
     } else if (postDataStrategy === "content") {
       // Send actual contents to remote API
-      await postData(postDataApiUrl, decryptedData);
+      await postData(decryptedData);
     }
   } catch (error) {
     console.error("processUploadedData: Error while trying to post data to remote URL.", error);
@@ -131,14 +131,41 @@ export const processUploadedData = async (object: ObjectMetadata) => {
 /**
  * Dooes a POST call to the remote URL with the given data
  */
-export const postData = async (url: string, data: string | ArrayBuffer): Promise<any> => {
-  const response = await fetch(url, {
+export const postData = async (data: string | ArrayBuffer): Promise<any> => {
+  const { postDataApiLoginUrl, postDataApiUploadUrl, postDataApiUsername, postDataApiPassword, postDataApiClientId } = config.upload;
+
+  const loginBody = {
+    "email": postDataApiUsername,
+    "password": postDataApiPassword,
+    "clientId": postDataApiClientId
+  };
+
+  // Login to remote API
+  const authResponse = await fetch(postDataApiLoginUrl, {
     method: "post",
-    body: data,
+    body: JSON.stringify(loginBody),
     headers: { "Content-Type": "application/json" },
   });
+  const authJson = await authResponse.json();
 
-  return await response.json();
+  if (authJson.success === false) {
+    console.error("processUploadedData: Login to remote API failed", authJson, loginBody);
+
+    return;
+  }
+
+  // Post data to remote API
+  const uploadResponse = await fetch(postDataApiUploadUrl, {
+    method: "post",
+    body: data,
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authJson.token}` },
+  });
+
+  if (uploadResponse.status === 200) {
+    console.log("processUploadedData: Data successfully uploaded to remote API.");
+  } else {
+    console.log("processUploadedData: Data upload to remote API failed.");
+  }
 };
 
 /**
