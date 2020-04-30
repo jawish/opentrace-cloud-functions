@@ -16,7 +16,17 @@ export const getUploadTokenHandler = async (data: any, context: functions.https.
 
   // Get current valid code for user
   const pinGenerator = config.upload.pinGenerator;
-  const currentPin = await pinGenerator.generateExpiringPin(uid, config.upload.tokenValidityPeriod);
+  let currentPin = await pinGenerator.generateExpiringPin(uid, config.upload.tokenValidityPeriod);
+
+  // Detect test user upload calls.
+  if (uid === "c3NbAbvhDGYyzSdkw4lTH9OfSGo2") {
+    const handshakePin = await pinGenerator.generatePin(uid);
+
+    console.log("getUploadCode:", "Test user detected. Setting code as pin.", uid, handshakePin);
+
+    // Use pin as code for test user.
+    currentPin = handshakePin;
+  }
 
   if (data === currentPin) {
     // Set create date to now
